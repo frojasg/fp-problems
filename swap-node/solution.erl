@@ -1,6 +1,5 @@
 -module(solution).
 -export([main/0]).
-  % -include_lib("eunit/include/eunit.hrl").
 
 -type tree() :: empty
                | {node, Val::tree(), Val::tree()}.
@@ -9,11 +8,17 @@
 new_tree(-1) ->
     empty;
 new_tree(Val) ->
-    {node, Val, nil, nil}.
+    {node, Val, empty, empty}.
 
 -spec add_children(tree(), integer(), integer()) -> tree().
+add_children(empty, _Left, _Right) ->
+    empty;
 add_children(Node, Left, Right) ->
     {node, node_value(Node), new_tree(Left), new_tree(Right)}.
+
+-spec replace_children(tree(), tree(), tree()) -> tree().
+replace_children(Node, Left, Right) ->
+  {node, node_value(Node), Left, Right}.
 
 node_value({node, Val, _Left, _Right}) ->
     Val.
@@ -27,38 +32,30 @@ left_node({node, _Val, Left, _Right}) ->
 main() ->
     {ok,  [Num]} = io:fread("", "~d"),
     {Tree, H} = map_to_tree(read_tree2(Num - 1, [1], #{})),
-    % ?debugVal(H),
 
     {ok,  [Ops]} = io:fread("", "~d"),
     swap(Tree, H, Ops).
-    % init:stop().
-
-    % [io:format("~p ", [X]) || X <- Output],
-    % io:format("~n", []).
 
 swap(Tree, _H, 0) ->
     Tree;
 swap(Tree, H, Ops) ->
     {ok,  [Level]} = io:fread("", "~d"),
-    Tree1 = swap_tree(Tree, Level, H, 1, 1),
-
-
+    Tree1 = swap_tree(Tree, Level, 1),
     Output = print_tree(Tree1, []),
     [io:format("~p ", [X]) || X <- Output],
     io:format("~n", []),
     swap(Tree1, H, Ops -1).
 
-swap_tree(empty, _Level, _H, _I, _Current)  ->
-    empty;
-swap_tree({node, Val, Left, Right}, Level, H, I, Current) when Current < Level ->
-    Left1 = swap_tree(Left, Level, H, I, Current + 1),
-    Right1 = swap_tree(Right, Level, H, I, Current + 1),
-    {node, Val, Left1, Right1};
-swap_tree({node, Val, Left, Right}, Level, H, I, Current) when Current >= Level ->
-    case (I+1)*Level =< H of
-        true ->  swap_tree({node, Val, Right, Left}, (I+1)*Level, H, I+1, Current);
-        false -> {node, Val, Right, Left}
-    end.
+swap_tree(empty, _Level, _Current) ->
+  empty;
+swap_tree(Tree, Level, Current) when Current rem Level =:= 0  ->
+  Left = swap_tree(left_node(Tree), Level, Current+1),
+  Right = swap_tree(right_node(Tree), Level, Current+1),
+  replace_children(Tree, Right, Left);
+swap_tree(Tree, Level, Current) when Current rem Level =/= 0  ->
+  Left = swap_tree(left_node(Tree), Level, Current+1),
+  Right = swap_tree(right_node(Tree), Level, Current+1),
+  replace_children(Tree, Left, Right).
 
 read_tree2(_Level, [], Map) ->
     Map;
@@ -67,13 +64,11 @@ read_tree2(Level, [Node | Rest], Map) ->
     Map1 = maps:put(Node, [Left, Right], Map),
     read_tree2(Level - 1, [X || X <- Rest ++ [Left, Right], X > 0], Map1).
 
-
-
 map_to_tree(Map) ->
     map_to_tree(Map, new_tree(1), 1).
 
-map_to_tree(_Map, nil, H) ->
-    {nil, H-1};
+map_to_tree(_Map, empty, H) ->
+    {empty, H-1};
 map_to_tree(Map, Node, H) ->
     [Left, Right] = maps:get(node_value(Node), Map, [-1, -1]),
     {node, Val, Left1, Right1} = add_children(Node, Left, Right),
