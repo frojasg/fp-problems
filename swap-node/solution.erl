@@ -31,7 +31,7 @@ left_node({node, _Val, Left, _Right}) ->
 
 main() ->
     {ok,  [Num]} = io:fread("", "~d"),
-    {Tree, H} = map_to_tree(read_tree2(Num - 1, [1], #{})),
+    {Tree, H} = map_to_tree(read_tree(Num - 1, [1], #{})),
 
     {ok,  [Ops]} = io:fread("", "~d"),
     swap(Tree, H, Ops).
@@ -57,12 +57,12 @@ swap_tree(Tree, Level, Current) when Current rem Level =/= 0  ->
   Right = swap_tree(right_node(Tree), Level, Current+1),
   replace_children(Tree, Left, Right).
 
-read_tree2(_Level, [], Map) ->
+read_tree(_Level, [], Map) ->
     Map;
-read_tree2(Level, [Node | Rest], Map) ->
+read_tree(Level, [Node | Rest], Map) ->
     {ok,  [Left, Right]} = io:fread("", "~d ~d"),
     Map1 = maps:put(Node, [Left, Right], Map),
-    read_tree2(Level - 1, [X || X <- Rest ++ [Left, Right], X > 0], Map1).
+    read_tree(Level - 1, [X || X <- Rest ++ [Left, Right], X > 0], Map1).
 
 map_to_tree(Map) ->
     map_to_tree(Map, new_tree(1), 1).
