@@ -41,7 +41,8 @@ swap_tree(Tree, Level, Current) when Current rem Level =:= 0
 
 ## Conclusion
 
-Data structure you use could simplify your life if you do the right choice or make it could give you a hard time.
-Keep you code declarative, if you're code is getting to complex or messy, take a step back and think again what you're doing
+Think hard about the data structure you're using before jumping stright to the code.
+Keep your code declarative, if you're code is getting to complex, tkae a step back and think how you can make it simpler
+
 
 
