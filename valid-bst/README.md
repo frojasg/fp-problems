@@ -15,3 +15,11 @@ If you try to insert a value that already exist in the tre you will get an exept
 
 I also wrote a function to transform a Tree into a list using the ``` Preorder``` traversal. At the begining I wrote that funcion using a Tail-Recursive function. I always keep forgeting that in Erlang [Tail-Recursive functions are ___NOT___ faster than recursive functions](http://erlang.org/doc/efficiency_guide/myths.html#id60476).
 
+This is how that function looks like:
+```erlang
+tree_to_line(empty ) ->
+  [];
+tree_to_line(Tree) ->
+  [node_value(Tree)] ++ tree_to_line(left_node(Tree)) ++ tree_to_line(right_node(Tree)).
+```
+

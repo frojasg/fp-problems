@@ -5,3 +5,4 @@ This set of problem I use to develop my fuctional programming skill using [Erlan
 List of problem
 
 * [Swap node](./swap-node/README.md)
+* [Valid BST](./valid-bst/README.md)
